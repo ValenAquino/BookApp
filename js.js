@@ -80,7 +80,7 @@ function desplegarListaGuardada(){
     if(localStorage.getItem("libros") != null){
         const booksSaved = localStorage.getItem("libros");
         for (let libro of JSON.parse(booksSaved))
-        books.push(libro); 
+            books.push(libro); 
     }
     
     for (let book of books) {
