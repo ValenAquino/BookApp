@@ -21,8 +21,8 @@ class Libro {
     }
 
     card(){
-        cantLib++;
         const card = document.createElement("DIV");
+        cantLib++;
         card.classList.add("book-card");
         card.appendChild(this.nodoDatos());
         card.appendChild(this.nodoSwitch());
@@ -37,8 +37,8 @@ class Libro {
         
         botonCerrar.innerHTML = `<div class="quitarContainer"><span class="quitar"> - </span></div>`;
         datosLibro.innerHTML = `<h3>${this.title}</h3>   
-                                <span>${this.author}<br> </span>
-                                <span>Páginas: <b>${this.pages}</b> </span>`;
+                                <span>${this.author}<br></span>
+                                <span>Páginas: <b>${this.pages}</b></span>`;
                                 
         dataContainer.appendChild(botonCerrar);
         dataContainer.appendChild(datosLibro);
@@ -76,11 +76,24 @@ class Libro {
 
 // Funciones pre-definidas
 
+function desplegarListaGuardada(){
+    if(localStorage.getItem("libros") != null){
+        const booksSaved = localStorage.getItem("libros");
+        for (let libro of JSON.parse(booksSaved))
+        books.push(libro); 
+    }
+    
+    for (let book of books) {
+        const libro = new Libro(book.title, book.pages, book.author, book.read);
+        agregarLibro(libro);
+    }
+}
+
 function agregarLibro(libro) {
     cardContainer.appendChild(libro.card());
 }
 
-function agregarLibroLocal(libro){
+function agregarLibroLocalStorage(libro){
     books.push(libro);
     agregarLibro(libro);
     if(localStorage.getItem("libros") != null){
@@ -112,15 +125,16 @@ saveBtn.addEventListener("click", (e)=>{
     const author = document.getElementById("author").value;
     const read  = document.getElementById("switch-modal").checked;
     const libro = new Libro(title, pages, author, read);
-    
+
     e.preventDefault();
-    agregarLibroLocal(libro);
+    agregarLibroLocalStorage(libro);
     ocultarModal(addBookModal);
     form.reset();
 });
 
 removeBtn.addEventListener("click", (e)=>{
     const removeContainers = document.querySelectorAll(".quitarContainer");
+
     removeContainers.forEach(container => {container.style.display = "inline-block"});
     removeBtn.style.display = "none";
     saveBtnTool.style.display = "inline-block"
@@ -128,39 +142,12 @@ removeBtn.addEventListener("click", (e)=>{
 
 saveBtnTool.addEventListener("click", (e)=>{
     const removeContainers = document.querySelectorAll(".quitarContainer");
+
     removeContainers.forEach(container => {container.style.display = "none"});
     removeBtn.style.display = "inline-block";
     saveBtnTool.style.display = "none";
-    
 });
-
-
 
 // Código que se debe ejecutar siempre
 
-if(localStorage.getItem("libros") != null){
-    const booksSaved = localStorage.getItem("libros");
-    for (let libro of JSON.parse(booksSaved))
-    books.push(libro); 
-}
-
-for (let book of books) {
-    const libro = new Libro(book.title, book.pages, book.author, book.read);
-    agregarLibro(libro);
-}
-
-
-// const switchCards = document.querySelectorAll(".input-switch-card");
-
-// switchCards.forEach(switchCard => switchCard.addEventListener("click", (e)=>{
-//     let valor = switchCard.checked;
-//     console.log(valor)
-// }));
-
-
-
-
-
-
-
-
+desplegarListaGuardada();
