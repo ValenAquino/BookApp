@@ -1,13 +1,15 @@
-const editBtn =  document.getElementById("edit-btn");
+const editBtn =  document.getElementById("add-btn");
 const removeBtn = document.getElementById("remove-btn");
-const addBookModal = document.querySelector(".add-book-modal");
-const bookModalForm = document.querySelector(".modal_form");
-const cerrarModal = document.querySelector(".cerrar");
-const saveBtn = document.getElementById("save-btn");
 const saveBtnTool = document.getElementById("save-btn2");
+// modales
+const addBookModal = document.querySelector(".add-book-modal"); // fondo oscuro
+const bookModalForm = document.querySelector(".modal_form"); // ventana emergente
+const cerrarModal = document.querySelector(".cerrar"); // cruz de la ventana emergent
+const saveBtn = document.getElementById("save-btn");
+// cards
 const cardContainer = document.querySelector(".cards-container");
 const books = [];
-var booksAmount = 0;
+var cantLib = 0;
 
 class Libro {
     constructor(title, pages, author, read){
@@ -17,54 +19,81 @@ class Libro {
         this.read = read;
     }
 
-    info(){
-        console.log(`Libro: ${this.title}, Autor: ${this.author}, Páginas: ${this.pages}, Read: ${this.read}`);
+    card(){
+        cantLib++;
+        const card = document.createElement("DIV");
+        card.classList.add("book-card");
+        card.appendChild(this.nodoDatos());
+        card.appendChild(this.nodoSwitch());
+
+        return card;
     }
 
-    card(){
-        let checked_value = '';
-        booksAmount++;
-        if(this.read)
-            checked_value = "checked"
+    nodoDatos(){
+        const dataContainer = document.createElement("DIV")
+        const botonCerrar = document.createElement("DIV");
+        const datosLibro = document.createElement("DIV");
+        
+        botonCerrar.innerHTML = `<div class="quitarContainer"><span class="quitar"> - </span></div>`;
+        datosLibro.innerHTML = `<h3>${this.title}</h3>   
+                                <span>${this.author}<br> </span>
+                                <span>Páginas: <b>${this.pages}</b> </span>`;
+                                
+        dataContainer.appendChild(botonCerrar);
+        dataContainer.appendChild(datosLibro);
 
-        return `<div class="book-card">
-                    <div class="quitarContainer"><span class="quitar"> - </span></div>
-                    <h3>${this.title}</h3>   
-                    <span>${this.author}<br> </span>
-                    <span>Páginas: <b>${this.pages}</b> </span>
-                    <div class="switch switch-card">
-                    <span>Leido</span>
-                    <input type="checkbox" class = "input-switch" name="read" id="switch-${booksAmount}" ${checked_value}>
-                    <label for="switch-${booksAmount}" class="switch-lbl"></label>
-                    </div>
-                    </div>`
-                }
-            }
-            
+        return dataContainer;
+    }
+
+    nodoSwitch(){
+        const  switchCard = document.createElement("DIV");
+        const span = document.createElement("SPAN");
+        const input = document.createElement("INPUT");
+        const label = document.createElement("LABEL");
+
+        span.textContent = "Leido";
+
+        input.classList.add("input-switch");
+        input.classList.add("input-switch-card");
+        input.setAttribute(`type`, `checkbox`);
+        input.setAttribute(`name`, `read`);
+        input.setAttribute(`id`, `switch-${cantLib}`);
+        input.checked = this.read;
+
+        label.classList.add("switch-lbl");
+        label.setAttribute("for", `switch-${cantLib}`);
+
+        switchCard.classList.add("switch");
+        switchCard.classList.add("switch-card");
+        switchCard.appendChild(span);
+        switchCard.appendChild(input);
+        switchCard.appendChild(label);
+
+        return switchCard;
+    }
+}
+
 // Funciones pre-definidas
 
 function agregarLibro(libro) {
-    const div = document.createElement("DIV");
-    div.innerHTML = libro.card();
-    cardContainer.appendChild(div);
+    cardContainer.appendChild(libro.card());
 }
 
- function agregarLibroLocal(libro){
+function agregarLibroLocal(libro){
     books.push(libro);
     agregarLibro(libro);
     if(localStorage.getItem("libros") != null){
         localStorage.removeItem("libros");
         localStorage.setItem("libros", JSON.stringify(books));
     }
-    else {
-        localStorage.setItem("libros", JSON.stringify(books));
-    }
- }
+    else
+    localStorage.setItem("libros", JSON.stringify(books));
+}
 
 function ocultarModal(modal) {
     modal.style.display = "none";
 }
-            
+
 // Eventos
 
 editBtn.addEventListener("click", (e)=>{
@@ -104,22 +133,33 @@ saveBtnTool.addEventListener("click", (e)=>{
     
 });
 
-const deleteBtns = document.querySelectorAll(".quitar");
 
-deleteBtns.forEach(deleteBtn => deleteBtn.addEventListener("click", (e)=> {
-    console.log(e);
-}));
 
 // Código que se debe ejecutar siempre
 
 if(localStorage.getItem("libros") != null){
     const booksSaved = localStorage.getItem("libros");
-    for (let libro of JSON.parse(booksSaved)) {
-        books.push(libro); 
-    }
+    for (let libro of JSON.parse(booksSaved))
+    books.push(libro); 
 }
 
 for (let book of books) {
     const libro = new Libro(book.title, book.pages, book.author, book.read);
     agregarLibro(libro);
 }
+
+
+// const switchCards = document.querySelectorAll(".input-switch-card");
+
+// switchCards.forEach(switchCard => switchCard.addEventListener("click", (e)=>{
+//     let valor = switchCard.checked;
+//     console.log(valor)
+// }));
+
+
+
+
+
+
+
+
