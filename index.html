@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>BookApp</title>
+</head>
+<body>
+    <header>
+        <span>BookApp</span>
+    </header>
+    <main>
+        <div class="tools">
+            <button id="edit-btn" class="btn">Agregar</button>
+            <button id="remove-btn" class="btn">Quitar</button>
+            <button id="save-btn2" type="submit" class="btn oculto">Guardar</button>
+        </div>
+        <div class="cards-container"></div>
+    </main>
+    <!-- Pop-up's -->
+    <div class="add-book-modal">
+        <form class="modal_form">
+            <div class="cerrarContainer"><span class="cerrar">X</span></div>
+            <div class="input">
+                <label for="title">Titulo del libro</label>
+                <input type="text" id="title" name = "title">
+            </div>
+            <div class="input">
+                <label for="author">Autor</label>
+                <input type="text" id="author" name = "author">
+            </div>
+            <div class="input">
+                <label for="pages">Cantidad de páginas</label>
+                <input type="number" id="pages" name = "pages">
+            </div>
+            <div class="input">
+                    <label for="switch-modal">Leido</label>
+                    <input type="checkbox" class = "input-switch" name="read" id="switch-modal">
+                    <label for="switch-modal" class="switch-lbl"></label>
+            </div>
+            <button id="save-btn" type="submit" class="btn">Guardar</button>
+        </form>
+    </div>
+    <script src="js.js"></script>
+</body>
+</html>
