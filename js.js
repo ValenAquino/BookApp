@@ -9,7 +9,7 @@ const btnCerrarModal = document.querySelector(".cerrar"); // cruz de la ventana 
 const saveBtn = document.getElementById("save-btn");
 // cards
 const cardContainer = document.querySelector(".cards-container");
-const books = [];
+let books = [];
 var cantLib = 0;
 
 class Libro {
@@ -28,47 +28,48 @@ class Libro {
         const card = document.createElement("DIV");
         this.setID(cantLib); cantLib++;
         card.classList.add("book-card");
+        card.classList.add("book-card-style");
+        card.setAttribute("id", `card-${this.id}`);
+        card.appendChild(this.nodoEliminar());
         card.appendChild(this.nodoDatos());
         card.appendChild(this.nodoSwitch());
 
         return card;
     }
 
-    nodoDatos(){
-        const dataContainer = document.createElement("DIV")
-        const botonCerrar = document.createElement("DIV");
-        const datosLibro = document.createElement("DIV");
+    nodoEliminar(){
+        const botonEliminar = document.createElement("DIV");
         
-        botonCerrar.innerHTML = `<div class="quitarContainer"><span class="quitar"> - </span></div>`;
-        datosLibro.innerHTML = `<h3>${this.title}</h3>   
-                                <span>${this.author}<br></span>
-                                <span>Páginas: <b>${this.pages}</b></span>`;
-                                
-        dataContainer.appendChild(botonCerrar);
+        botonEliminar.classList.add("quitarContainer");
+        botonEliminar.innerHTML = `<span class="botonEditar quitar"> - </span>`;
+        botonEliminar.addEventListener("click", (e)=>{eliminarLibro(this.id, botonEliminar)});
+
+        return botonEliminar;
+    }
+
+    nodoDatos(){
+        const dataContainer = document.createElement("DIV");
+        const datosLibro = document.createElement("DIV");
+        const titulo = `<h3>${this.title}</h3>`;
+        const spanAutor = `<span>${this.author}<br></span>`;
+        const spanPages = `<span>Páginas: <b>${this.pages}</b></span>`;
+
+        datosLibro.innerHTML = `${titulo} ${spanAutor} ${spanPages}`;
         dataContainer.appendChild(datosLibro);
 
         return dataContainer;
     }
 
     nodoSwitch(){
-        const  switchCard = document.createElement("DIV");
+        const switchCard = document.createElement("DIV");
         const span = document.createElement("SPAN");
-        const input = document.createElement("INPUT");
         const label = document.createElement("LABEL");
-
+        const input = this.hadleInputSwitch();
+        
         span.textContent = "Leido";
-
-        input.classList.add("input-switch");
-        input.classList.add("input-switch-card");
-        input.setAttribute(`type`, `checkbox`);
-        input.setAttribute(`name`, `read`);
-        input.setAttribute(`id`, `switch-${this.id}`);
-        input.checked = this.read;
-        input.addEventListener("click", (e) => actualizarCheckBox(input, this.id));
-
         label.classList.add("switch-lbl");
         label.setAttribute("for", `switch-${this.id}`);
-
+        
         switchCard.classList.add("switch");
         switchCard.classList.add("switch-card");
         switchCard.appendChild(span);
@@ -77,9 +78,30 @@ class Libro {
 
         return switchCard; 
     }
+
+    hadleInputSwitch(){
+        const input = document.createElement("INPUT");
+        input.classList.add("input-switch");
+        input.classList.add("input-switch-card");
+        input.setAttribute(`type`, `checkbox`);
+        input.setAttribute(`name`, `read`);
+        input.setAttribute(`id`, `switch-${this.id}`);
+        input.checked = this.read;
+        input.addEventListener("click", (e) => actualizarCheckBox(input, this.id));
+        
+        return input;
+    }
+
 }
 
 // Funciones pre-definidas
+
+function desplegarLibros(){
+    for (let book of books) {
+        const libro = new Libro(book.title, book.pages, book.author, book.read);
+        agregarLibro(libro);
+    }
+}
 
 function desplegarListaGuardada(){
     if(localStorage.getItem("libros") != null){
@@ -87,10 +109,7 @@ function desplegarListaGuardada(){
         for (let libro of JSON.parse(booksSaved))
             books.push(libro); 
     }
-    for (let book of books) {
-        const libro = new Libro(book.title, book.pages, book.author, book.read);
-        agregarLibro(libro);
-    }
+    desplegarLibros();
 }
 
 function agregarLibro(libro) {
@@ -99,7 +118,8 @@ function agregarLibro(libro) {
 
 function guardarBooksLocal(){
     localStorage.removeItem("libros");
-    localStorage.setItem("libros", JSON.stringify(books));
+    if(books.length > 0)
+        localStorage.setItem("libros", JSON.stringify(books));
 }
 
 function agregarLibroLocalStorage(libro){
@@ -116,16 +136,30 @@ function ocultarModal(modal) {
     document.body.classList.remove("bloquearScroll");
 }
 
-function actualizarStorage(bookIndex, newValue){
+function actualizarCheckBox(input, bookIndex) {
+    const newValue = input.checked;
+
     books[bookIndex].read = newValue;
     guardarBooksLocal();
 }
 
-function actualizarCheckBox(input, bookIndex) {
-    const newValue = input.checked;
+function eliminarLibro(idxLibro, btn) {
+    const libroParaQuitar = document.getElementById(`card-${idxLibro}`);
+    
+    if(libroParaQuitar.classList.contains("book-card-style")){
+        libroParaQuitar.classList.remove("book-card-style");
+        libroParaQuitar.classList.add("book-card-delete");
+        btn.innerHTML =  `<span class="botonEditar agregar"> + </span>`;
+    }
+    else {
+        libroParaQuitar.classList.add("book-card-style");
+        libroParaQuitar.classList.remove("book-card-delete");
+        btn.innerHTML =  `<span class="botonEditar quitar"> - </span>`;
+    };
+};
 
-    actualizarStorage(bookIndex, newValue);
-    //actualizarContainer(bookIndex);
+function cardContainerReset(){
+    cardContainer.innerHTML = "";
 }
 
 // Eventos
@@ -136,8 +170,10 @@ addBtn.addEventListener("click", (e)=>{
 });
 
 addBookModal.addEventListener("click", (e)=>{
-    if(!((e.target == bookModalForm || e.target != addBookModal) && e.target != btnCerrarModal))
+    if(!((e.target == bookModalForm || e.target != addBookModal) && e.target != btnCerrarModal)){
         ocultarModal(addBookModal);
+        bookModalForm.reset();
+    }
 });
 
 btnCerrarModal.addEventListener("click", (e)=>{
@@ -172,6 +208,17 @@ saveBtnTool.addEventListener("click", (e)=>{
     removeContainers.forEach(container => {container.style.display = "none"});
     removeBtn.style.display = "inline-block";
     saveBtnTool.style.display = "none";
+});
+
+saveBtnTool.addEventListener("click", (e)=>{
+    books = books.filter(libro => {
+        const card = document.getElementById(`card-${libro.id}`);
+        return !card.classList.contains("book-card-delete")
+    });
+
+    cardContainerReset();
+    guardarBooksLocal();
+    desplegarLibros();
 });
 
 // Código que se debe ejecutar siempre
