@@ -1,11 +1,11 @@
 //tools
-const editBtn =  document.getElementById("add-btn");
+const addBtn =  document.getElementById("add-btn");
 const removeBtn = document.getElementById("remove-btn");
 const saveBtnTool = document.getElementById("save-btn2");
 // modales
 const addBookModal = document.querySelector(".add-book-modal"); // fondo oscuro
 const bookModalForm = document.querySelector(".modal_form"); // ventana emergente
-const cerrarModal = document.querySelector(".cerrar"); // cruz de la ventana emergent
+const btnCerrarModal = document.querySelector(".cerrar"); // cruz de la ventana emergent
 const saveBtn = document.getElementById("save-btn");
 // cards
 const cardContainer = document.querySelector(".cards-container");
@@ -113,6 +113,7 @@ function agregarLibroLocalStorage(libro){
 
 function ocultarModal(modal) {
     modal.style.display = "none";
+    document.body.classList.remove("bloquearScroll");
 }
 
 function actualizarStorage(bookIndex, newValue){
@@ -129,13 +130,19 @@ function actualizarCheckBox(input, bookIndex) {
 
 // Eventos
 
-editBtn.addEventListener("click", (e)=>{
+addBtn.addEventListener("click", (e)=>{
     addBookModal.style.display = "flex";
+    document.body.classList.add("bloquearScroll");
 });
 
-cerrarModal.addEventListener("click", (e)=>{
+addBookModal.addEventListener("click", (e)=>{
+    if(!((e.target == bookModalForm || e.target != addBookModal) && e.target != btnCerrarModal))
+        ocultarModal(addBookModal);
+});
+
+btnCerrarModal.addEventListener("click", (e)=>{
     ocultarModal(addBookModal);
-})
+});
 
 saveBtn.addEventListener("click", (e)=>{
     const form = document.querySelector(".modal_form")

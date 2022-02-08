@@ -136,6 +136,10 @@ h3 {
     width: 100%;
 }
 
+.bloquearScroll{ /* cuando se abre el modal el body oculta evita scroll*/
+    overflow: hidden;
+}
+
 .modal_form {
     display: flex;
     flex-flow: column wrap;
