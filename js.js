@@ -97,6 +97,7 @@ class Libro {
 // Funciones pre-definidas
 
 function desplegarLibros(){
+    cantLib = 0;
     for (let book of books) {
         const libro = new Libro(book.title, book.pages, book.author, book.read);
         agregarLibro(libro);
@@ -162,6 +163,21 @@ function cardContainerReset(){
     cardContainer.innerHTML = "";
 }
 
+function desplegarBotonenBorrarLibro(){
+    const removeContainers = document.querySelectorAll(".quitarContainer");
+
+    removeContainers.forEach(container => {container.style.display = "none"});
+    removeBtn.style.display = "inline-block";
+    saveBtnTool.style.display = "none";
+}
+
+function actualizarListaLibros(){
+    books = books.filter(libro => {
+        const card = document.getElementById(`card-${libro.id}`);
+        return !card.classList.contains("book-card-delete");
+    });
+}
+
 // Eventos
 
 addBtn.addEventListener("click", (e)=>{
@@ -203,19 +219,8 @@ removeBtn.addEventListener("click", (e)=>{
 })
 
 saveBtnTool.addEventListener("click", (e)=>{
-    const removeContainers = document.querySelectorAll(".quitarContainer");
-
-    removeContainers.forEach(container => {container.style.display = "none"});
-    removeBtn.style.display = "inline-block";
-    saveBtnTool.style.display = "none";
-});
-
-saveBtnTool.addEventListener("click", (e)=>{
-    books = books.filter(libro => {
-        const card = document.getElementById(`card-${libro.id}`);
-        return !card.classList.contains("book-card-delete")
-    });
-
+    desplegarBotonenBorrarLibro();
+    actualizarListaLibros();
     cardContainerReset();
     guardarBooksLocal();
     desplegarLibros();
