@@ -18,11 +18,15 @@ class Libro {
         this.pages = pages;
         this.author = author;
         this.read = read;
+        this.id = 0;
+    }
+    setID(id) {
+        this.id = id; // index del array de los libros
     }
 
     card(){
         const card = document.createElement("DIV");
-        cantLib++;
+        this.setID(cantLib); cantLib++;
         card.classList.add("book-card");
         card.appendChild(this.nodoDatos());
         card.appendChild(this.nodoSwitch());
@@ -58,11 +62,12 @@ class Libro {
         input.classList.add("input-switch-card");
         input.setAttribute(`type`, `checkbox`);
         input.setAttribute(`name`, `read`);
-        input.setAttribute(`id`, `switch-${cantLib}`);
+        input.setAttribute(`id`, `switch-${this.id}`);
         input.checked = this.read;
+        input.addEventListener("click", (e) => actualizarCheckBox(input, this.id));
 
         label.classList.add("switch-lbl");
-        label.setAttribute("for", `switch-${cantLib}`);
+        label.setAttribute("for", `switch-${this.id}`);
 
         switchCard.classList.add("switch");
         switchCard.classList.add("switch-card");
@@ -70,7 +75,7 @@ class Libro {
         switchCard.appendChild(input);
         switchCard.appendChild(label);
 
-        return switchCard;
+        return switchCard; 
     }
 }
 
@@ -82,7 +87,6 @@ function desplegarListaGuardada(){
         for (let libro of JSON.parse(booksSaved))
             books.push(libro); 
     }
-    
     for (let book of books) {
         const libro = new Libro(book.title, book.pages, book.author, book.read);
         agregarLibro(libro);
@@ -93,19 +97,34 @@ function agregarLibro(libro) {
     cardContainer.appendChild(libro.card());
 }
 
+function guardarBooksLocal(){
+    localStorage.removeItem("libros");
+    localStorage.setItem("libros", JSON.stringify(books));
+}
+
 function agregarLibroLocalStorage(libro){
     books.push(libro);
     agregarLibro(libro);
-    if(localStorage.getItem("libros") != null){
-        localStorage.removeItem("libros");
-        localStorage.setItem("libros", JSON.stringify(books));
-    }
+    if(localStorage.getItem("libros") != null)
+        guardarBooksLocal();
     else
-    localStorage.setItem("libros", JSON.stringify(books));
+        localStorage.setItem("libros", JSON.stringify(books));
 }
 
 function ocultarModal(modal) {
     modal.style.display = "none";
+}
+
+function actualizarStorage(bookIndex, newValue){
+    books[bookIndex].read = newValue;
+    guardarBooksLocal();
+}
+
+function actualizarCheckBox(input, bookIndex) {
+    const newValue = input.checked;
+
+    actualizarStorage(bookIndex, newValue);
+    //actualizarContainer(bookIndex);
 }
 
 // Eventos
@@ -149,5 +168,4 @@ saveBtnTool.addEventListener("click", (e)=>{
 });
 
 // Código que se debe ejecutar siempre
-
 desplegarListaGuardada();
