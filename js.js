@@ -5,7 +5,7 @@ const saveBtnTool = document.getElementById("save-btn2");
 // modales
 const addBookModal = document.querySelector(".add-book-modal"); // fondo oscuro
 const bookModalForm = document.querySelector(".modal_form"); // ventana emergente
-const btnCerrarModal = document.querySelector(".cerrar"); // cruz de la ventana emergent
+const btnCerrarModal = document.querySelector(".cerrar"); // cruz de la ventana emergente
 const saveBtn = document.getElementById("save-btn");
 // cards
 const cardContainer = document.querySelector(".cards-container");
@@ -13,20 +13,21 @@ let books = [];
 var cantLib = 0;
 
 class Libro {
-    constructor(title, pages, author, read){
+    constructor(title, pages, author, read, id){
         this.title = title;
         this.pages = pages;
         this.author = author;
         this.read = read;
-        this.id = 0;
+        this.id = id;
     }
-    setID(id) {
-        this.id = id; // index del array de los libros
+
+    setId(nuevoID){
+        this.id = nuevoID;
     }
 
     card(){
         const card = document.createElement("DIV");
-        this.setID(cantLib); cantLib++;
+        this.setId(cantLib);
         card.classList.add("book-card");
         card.classList.add("book-card-style");
         card.setAttribute("id", `card-${this.id}`);
@@ -43,23 +44,23 @@ class Libro {
         botonEliminar.classList.add("quitarContainer");
         botonEliminar.innerHTML = `<span class="botonEditar quitar"> - </span>`;
         botonEliminar.addEventListener("click", (e)=>{eliminarLibro(this.id, botonEliminar)});
-
+        
         return botonEliminar;
     }
-
+    
     nodoDatos(){
         const dataContainer = document.createElement("DIV");
         const datosLibro = document.createElement("DIV");
-        const titulo = `<h3>${this.title}</h3>`;
+        const titulo = `<h3>${this.id}) ${this.title}</h3>`;
         const spanAutor = `<span>${this.author}<br></span>`;
         const spanPages = `<span>Páginas: <b>${this.pages}</b></span>`;
-
+        
         datosLibro.innerHTML = `${titulo} ${spanAutor} ${spanPages}`;
         dataContainer.appendChild(datosLibro);
-
+        
         return dataContainer;
     }
-
+    
     nodoSwitch(){
         const switchCard = document.createElement("DIV");
         const span = document.createElement("SPAN");
@@ -75,11 +76,11 @@ class Libro {
         switchCard.appendChild(span);
         switchCard.appendChild(input);
         switchCard.appendChild(label);
-
+        
         return switchCard; 
     }
-
-    hadleInputSwitch(){
+    
+    hadleInputSwitch() {
         const input = document.createElement("INPUT");
         input.classList.add("input-switch");
         input.classList.add("input-switch-card");
@@ -91,15 +92,20 @@ class Libro {
         
         return input;
     }
+    
+    estaParaBorrar() {
+        const card = document.getElementById(`switch-${this.id}`);
 
-}
+        return card.classList.contains("book-card-delete");
+    }
+};
 
 // Funciones pre-definidas
 
 function desplegarLibros(){
     cantLib = 0;
     for (let book of books) {
-        const libro = new Libro(book.title, book.pages, book.author, book.read);
+        const libro = new Libro(book.title, book.pages, book.author, book.read, cantLib);
         agregarLibro(libro);
     }
 }
@@ -108,28 +114,29 @@ function desplegarListaGuardada(){
     if(localStorage.getItem("libros") != null){
         const booksSaved = localStorage.getItem("libros");
         for (let libro of JSON.parse(booksSaved))
-            books.push(libro); 
+        books.push(libro); 
     }
     desplegarLibros();
 }
 
 function agregarLibro(libro) {
     cardContainer.appendChild(libro.card());
+    cantLib++;
 }
 
 function guardarBooksLocal(){
     localStorage.removeItem("libros");
     if(books.length > 0)
-        localStorage.setItem("libros", JSON.stringify(books));
+    localStorage.setItem("libros", JSON.stringify(books));
 }
 
 function agregarLibroLocalStorage(libro){
     books.push(libro);
     agregarLibro(libro);
     if(localStorage.getItem("libros") != null)
-        guardarBooksLocal();
+    guardarBooksLocal();
     else
-        localStorage.setItem("libros", JSON.stringify(books));
+    localStorage.setItem("libros", JSON.stringify(books));
 }
 
 function ocultarModal(modal) {
@@ -163,7 +170,7 @@ function cardContainerReset(){
     cardContainer.innerHTML = "";
 }
 
-function desplegarBotonenBorrarLibro(){
+function desplegarBotonesBorrarLibro(){
     const removeContainers = document.querySelectorAll(".quitarContainer");
 
     removeContainers.forEach(container => {container.style.display = "none"});
@@ -171,11 +178,23 @@ function desplegarBotonenBorrarLibro(){
     saveBtnTool.style.display = "none";
 }
 
+function tieneClaseDelete(libro) {
+    return document.getElementById(`card-${libro.id}`).classList.contains("book-card-delete");
+}
+
+function reasignarIDLibros() {
+    for (const i in books) {
+        books[i].setId(i);
+    }
+}
+
 function actualizarListaLibros(){
-    books = books.filter(libro => {
-        const card = document.getElementById(`card-${libro.id}`);
-        return !card.classList.contains("book-card-delete");
-    });
+    const librosABorrar = books.filter(libro => tieneClaseDelete(libro));
+    const librosFiltrados = books.filter(libro => !librosABorrar.includes(libro));
+    books = librosFiltrados;
+    console.log(librosABorrar);
+    console.log(books);
+    reasignarIDLibros();
 }
 
 // Eventos
@@ -202,8 +221,7 @@ saveBtn.addEventListener("click", (e)=>{
     const pages = document.getElementById("pages").value;
     const author = document.getElementById("author").value;
     const read  = document.getElementById("switch-modal").checked;
-    const libro = new Libro(title, pages, author, read);
-
+    const libro = new Libro(title, pages, author, read, cantLib);
     e.preventDefault();
     agregarLibroLocalStorage(libro);
     ocultarModal(addBookModal);
@@ -219,11 +237,11 @@ removeBtn.addEventListener("click", (e)=>{
 })
 
 saveBtnTool.addEventListener("click", (e)=>{
-    desplegarBotonenBorrarLibro();
+    desplegarBotonesBorrarLibro();
     actualizarListaLibros();
     cardContainerReset();
-    guardarBooksLocal();
     desplegarLibros();
+    guardarBooksLocal();
 });
 
 // Código que se debe ejecutar siempre
